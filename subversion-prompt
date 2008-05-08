@@ -25,7 +25,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
 # Changelog :
-#  2008-05-08: v0.2, Use environnement variable
+#  2008-05-08: v0.3, Use environnement variable
 #  2008-05-08: v0.2, Add HUGE_REPO options
 #  2008-05-08: v0.1, initial release
 #
