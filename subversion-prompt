@@ -1,0 +1,74 @@
+#############################################################################
+# Copyright (C) 2008 Eric Leblond
+# 
+# Version 0.2
+# 
+# subversion-prompt : Subversion aware bash prompt.
+# To use it, add to your .bashrc:
+#    . ~/bin/subversion-prompt
+#    # set a fancy prompt
+#    PS1='\u@\h:\w$(__svn_stat)\$ '
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+# Changelog :
+#  2008-05-08: Add HUGE_REPO options
+#  2008-05-08: v 0.1, initial release
+#
+
+# Uncomment this if you have huge repository
+# This will disable recursion when searching status
+# and speed things a lot (but feature is less interessant).
+# You can also look at the HUGE_REPO_EXCLUDE_PATH option
+#HAVE_HUGE_REPO=1
+
+# List of path to exclude from recursive status
+# Explanation of following regexp:
+# Exclude all directories under inl-svn, the nufw-svn directory, and
+# all directories ending by /tags par /branches
+# HUGE_REPO_EXCLUDE_PATH="inl-svn|nufw-svn$|/tags$|/branches$"
+HUGE_REPO_EXCLUDE_PATH="/tags$|/branches$"
+
+__svn_rev ()
+{
+	LANG='C' svn info 2>/dev/null | awk '/Revision:/ {print $2; }'
+}
+
+__svn_last_changed ()
+{
+	LANG='C' svn info 2>/dev/null | awk '/Last Changed Rev:/ { print $4;}'
+}
+
+__svn_clean ()
+{
+	if [ $HAVE_HUGE_REPO ]; then
+		HUGE_REPO=" -N ";
+	else
+		pwd | egrep -q $HUGE_REPO_EXCLUDE_PATH && HUGE_REPO=" -N "
+	fi
+	STATE=$(LANG='C' svn $HUGE_REPO status -q 2>/dev/null | grep "^[MA]" | wc -l)
+	if [ $STATE != 0 ]; then
+		echo "$2"
+	else
+		echo "$1"
+	fi
+}
+
+__svn_stat ()
+{
+	REV=$(__svn_rev)
+	if [ $REV ]; then
+		echo [$REV$(__svn_clean "" "*")]
+	fi
+}
