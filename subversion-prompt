@@ -2,10 +2,11 @@
 #
 # Copyright (C) 2008 Eric Leblond
 # 
-# Version 0.2
+# Version 0.3
 # 
 # subversion-prompt : Subversion aware bash prompt.
-# To use it, add to your .bashrc:
+# To use it, add something like that to your .bashrc:
+#    HUGE_REPO_EXCLUDE_PATH="nufw-svn$|/tags$|/branches$"
 #    . ~/bin/subversion-prompt
 #    # set a fancy prompt
 #    PS1='\u@\h:\w$(__svn_stat)\$ '
@@ -24,22 +25,24 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
 # Changelog :
+#  2008-05-08: v0.2, Use environnement variable
 #  2008-05-08: v0.2, Add HUGE_REPO options
 #  2008-05-08: v0.1, initial release
 #
-
-# Uncomment this if you have huge repository
-# This will disable recursion when searching status
-# and speed things a lot (but feature is less interessant).
-# You can also look at the HUGE_REPO_EXCLUDE_PATH option
-#HAVE_HUGE_REPO=1
 
 # List of path to exclude from recursive status
 # Explanation of following regexp:
 # Exclude all directories under inl-svn, the nufw-svn directory, and
 # all directories ending by /tags par /branches
-# HUGE_REPO_EXCLUDE_PATH="inl-svn|nufw-svn$|/tags$|/branches$"
-HUGE_REPO_EXCLUDE_PATH="/tags$|/branches$"
+# You can set it as environnement variable
+if [ ! $HUGE_REPO_EXCLUDE_PATH ]; then
+	HUGE_REPO_EXCLUDE_PATH="/tags$|/branches$"
+fi
+
+# Set HAVE_HUGE_REPO if you have huge repository
+# This will disable recursion when searching status
+# and speed things a lot (but feature is less interessant).
+# You can also look at the HUGE_REPO_EXCLUDE_PATH option
 
 __svn_rev ()
 {
@@ -68,6 +71,7 @@ __svn_clean ()
 
 __svn_stat ()
 {
+	[ -d .svn ] || return
 	REV=$(__svn_rev)
 	if [ $REV ]; then
 		echo [$REV$(__svn_clean "" "*")]
